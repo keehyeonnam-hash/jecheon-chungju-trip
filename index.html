@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>제천·충주 간사리트릿</title>
+<style>
+  :root{
+    --bg:#f7f8f7; --card:#ffffff; --ink:#23302a; --sub:#647067;
+    --line:#e7ebe7; --teal:#1f7a6b; --teal-d:#15564b;
+    --chip:#eef4f1; --shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;padding-bottom:44px;}
+  body.lock{overflow:hidden;}
+  .wrap{max-width:520px;margin:0 auto;}
+
+  header{background:linear-gradient(135deg,#1f7a6b,#15564b);color:#fff;
+    padding:30px 20px 22px;padding-top:calc(30px + env(safe-area-inset-top));}
+  header h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.3px;}
+  header .date{margin-top:9px;font-size:12.5px;letter-spacing:.5px;opacity:.9;}
+  header .date b{font-weight:700;letter-spacing:1px;margin-right:6px;}
+  header .pill{display:inline-block;background:rgba(255,255,255,.18);
+    border-radius:20px;padding:3px 11px;font-size:12px;margin:10px 6px 0 0;}
+
+  .banner{font-size:12px;padding:9px 14px;text-align:center;}
+  .banner.load{background:#eef4f1;color:#15564b;}
+  .banner.warn{background:#fcefe0;color:#9a5410;}
+  .banner.hide{display:none;}
+
+  .info{padding:14px 14px 0;}
+  .info-card{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    margin-bottom:9px;box-shadow:var(--shadow);overflow:hidden;}
+  .info-head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;font-size:14.5px;font-weight:600;}
+  .info-head .ico{font-size:16px;}
+  .info-head .sm{margin-left:auto;font-size:12.5px;font-weight:500;color:var(--sub);}
+  .info-head .chev{color:#b6c0b9;font-size:12px;transition:transform .25s;margin-left:8px;}
+  .info-card.open .chev{transform:rotate(180deg);}
+  .info-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .info-card.open .info-body{max-height:760px;}
+  .info-inner{padding:0 14px 14px;font-size:13px;color:var(--sub);}
+  .info-inner .row{margin:8px 0;}
+  .vsec{font-size:13px;font-weight:600;color:var(--teal-d);margin:14px 0 2px;}
+  .vcount{font-size:12px;font-weight:500;color:var(--sub);}
+  .veh{padding:9px 0;border-top:1px solid var(--line);}
+  .veh:first-child{border-top:none;}
+  .veh .vh{font-size:13.5px;color:var(--ink);font-weight:600;}
+  .veh .vh .drv{font-weight:500;color:var(--teal-d);}
+  .veh .vp{font-size:12.5px;color:var(--sub);margin-top:3px;}
+  .photo-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+    border-radius:13px;margin-bottom:9px;box-shadow:var(--shadow);padding:14px;text-decoration:none;color:var(--ink);}
+  .photo-card:active{background:#f3f6f4;}
+  .photo-card .pc-ico{font-size:20px;flex:none;}
+  .photo-card .pc-txt{flex:1;font-size:14.5px;font-weight:600;display:flex;flex-direction:column;}
+  .photo-card .pc-txt small{font-weight:500;color:var(--sub);font-size:12px;margin-top:2px;}
+  .photo-card .pc-arr{flex:none;color:#b6c0b9;font-size:20px;}
+
+  .tabs{position:sticky;top:0;z-index:20;display:flex;background:var(--card);
+    border-bottom:1px solid var(--line);box-shadow:var(--shadow);margin-top:16px;}
+  .tab{flex:1;text-align:center;padding:13px 0;font-size:15px;font-weight:600;
+    color:var(--sub);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;}
+  .tab.on{color:var(--teal-d);border-bottom-color:var(--teal);}
+  .tab small{display:block;font-size:11px;font-weight:500;opacity:.7;margin-top:2px;}
+
+  .day{padding:14px 14px 6px;}
+  .leg{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#93a097;padding:3px 0 9px 16px;}
+  .leg .ln{width:14px;height:1px;background:#d7ddd7;}
+
+  .item{display:flex;align-items:center;gap:12px;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:4px;box-shadow:var(--shadow);}
+  .t{flex:none;width:48px;font-size:13.5px;font-weight:700;color:var(--teal-d);}
+  .mid{flex:1;min-width:0;}
+  .mid .ttl{font-size:15.5px;font-weight:600;letter-spacing:-.2px;}
+  .badges{margin-top:5px;}
+  .b{display:inline-block;font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;margin-right:5px;}
+  .b.when{background:#eef1ef;color:#5a665d;}
+  .b.tour{background:#e7f1ec;color:#1f7a6b;}
+  .b.food{background:#fdeede;color:#b5701a;}
+  .b.cafe{background:#f0eafa;color:#6b4caa;}
+  .b.stay{background:#e6eef7;color:#2c5d92;}
+  .b.act{background:#e7f4f6;color:#1d7a86;}
+  .b.etc{background:#eef1ef;color:#5a665d;}
+  .more{flex:none;border:1px solid var(--line);background:#fafbfa;color:var(--teal-d);
+    font-size:12px;font-weight:600;border-radius:9px;padding:8px 11px;cursor:pointer;white-space:nowrap;}
+  .more:active{background:#eef4f1;}
+
+  .overlay{position:fixed;inset:0;background:rgba(20,30,26,.5);z-index:50;
+    display:none;align-items:flex-end;justify-content:center;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--card);width:100%;max-width:520px;border-radius:18px 18px 0 0;
+    max-height:88vh;overflow-y:auto;padding:20px 18px calc(24px + env(safe-area-inset-bottom));animation:up .25s ease;}
+  @keyframes up{from{transform:translateY(40px);opacity:.6;}to{transform:translateY(0);opacity:1;}}
+  .m-top{display:flex;align-items:flex-start;gap:10px;}
+  .m-title{flex:1;font-size:19px;font-weight:700;letter-spacing:-.3px;}
+  .m-time{font-size:12.5px;color:var(--sub);margin-top:3px;}
+  .x{flex:none;border:none;background:#f0f2f0;color:#5a665d;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;line-height:1;}
+  .m-badges{margin:12px 0 0;}
+  .m-desc{font-size:14px;color:#404a44;line-height:1.7;margin:14px 0;white-space:pre-wrap;}
+  .m-sec{font-size:13px;font-weight:700;color:var(--teal-d);margin:18px 0 8px;}
+  .menu{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .menu .mi{display:flex;justify-content:space-between;gap:10px;padding:10px 13px;font-size:13.5px;border-bottom:1px solid var(--line);}
+  .menu .mi:last-child{border-bottom:none;}
+  .menu .mi .nm{color:var(--ink);}
+  .menu .mi .nm .sig{display:inline-block;background:#fff0d6;color:#a85e12;font-size:10.5px;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px;}
+  .menu .mi .pr{color:var(--sub);white-space:nowrap;font-weight:600;}
+  .m-row{display:flex;align-items:flex-start;gap:8px;font-size:13.5px;margin:9px 0;}
+  .m-row .ic{flex:none;width:17px;text-align:center;opacity:.6;margin-top:1px;}
+  .tel{text-decoration:none;color:var(--teal-d);font-weight:600;}
+  .maps{display:flex;gap:7px;margin-top:14px;}
+  .maps a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:600;padding:11px 0;border-radius:11px;border:1px solid var(--line);}
+  .maps a.kakao{background:#fee500;border-color:#f2d900;color:#3a2c00;}
+  .maps a.naver{background:#03c75a;border-color:#02b350;color:#fff;}
+  .maps a.tmap{background:#ec1c24;border-color:#d4141b;color:#fff;}
+
+  .note{font-size:11.5px;color:#93a097;padding:14px 16px 0;line-height:1.7;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>제천·충주 간사리트릿</h1>
+    <div class="date"><b>DATE</b>06.08 (월) ~ 06.09 (화) · 1박 2일</div>
+    <div>
+      <span class="pill">👥 16명</span>
+      <span class="pill">🚗 자차</span>
+    </div>
+  </header>
+
+  <div id="banner" class="banner load">구글 시트에서 일정을 불러오는 중…</div>
+
+  <div class="info">
+    <div class="info-card">
+      <div class="info-head" onclick="this.parentNode.classList.toggle('open')">
+        <span class="ico">🏨</span> 숙소 <span class="sm">청풍리조트 레이크호텔</span>
+        <span class="chev">▼</span>
+      </div>
+      <div class="info-body"><div class="info-inner">
+        <div class="row">📍 충북 제천시 청풍면 청풍호로 1798</div>
+        <div class="row">📞 <a class="tel" href="tel:0436407000">043-640-7000</a></div>
+        <div class="row">1층 코인노래방·게임룸 등 단체 놀거리 이용 가능(운영시간 현장 확인)</div>
+        <div class="maps">
+          <a class="kakao" href="#" onclick="return openKakao('충북 제천시 청풍면 청풍호로 1798')">카카오맵</a>
+          <a class="naver" href="#" onclick="return openNaver('충북 제천시 청풍면 청풍호로 1798')">네이버지도</a>
+          <a class="tmap" href="#" onclick="return openTmap('충북 제천시 청풍면 청풍호로 1798')">T맵</a>
+        </div>
+      </div></div>
+    </div>
+    <div class="info-card">
+      <div class="info-head" onclick="this.parentNode.classList.toggle('open')">
+        <span class="ico">🚗</span> 교통 <span class="sm">자차 · 수원역 집결</span>
+        <span class="chev">▼</span>
+      </div>
+      <div class="info-body"><div class="info-inner">
+        <div class="row">집결: 수원역 (6/8 09:30 출발)</div>
+        <div class="row">전체 이동 약 361km · 자차 약 3대</div>
+        <div class="row">교통비(유류·통행) 약 78,065원/대</div>
+        <div class="vsec">🚙 차량 배치 <span class="vcount" id="vehCount"></span></div>
+        <div id="vehBody">불러오는 중…</div>
+      </div></div>
+    </div>
+    <a class="photo-card" href="https://drive.google.com/drive/folders/1OECiRhPoXP6bhzk4lmvmfiUZtdngDdrs?usp=sharing" target="_blank" rel="noopener">
+      <span class="pc-ico">📷</span>
+      <span class="pc-txt">사진 업로드 · 공유<small>탭하면 구글 드라이브 폴더가 열립니다</small></span>
+      <span class="pc-arr">›</span>
+    </a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tab1" onclick="showDay(1)">1일차<small id="lb1">6/8 월</small></button>
+    <button class="tab" id="tab2" onclick="showDay(2)">2일차<small id="lb2">6/9 화</small></button>
+  </div>
+
+  <div id="day1" class="day"></div>
+  <div id="day2" class="day hidden"></div>
+
+  <p class="note">"자세히"를 누르면 장소 설명·메뉴·주소·길찾기가 팝업으로 나옵니다. 내용은 구글 시트의 <b>사이트 정보</b> 탭에서 가져오며, 시트를 수정하면 새로고침 시 반영됩니다.</p>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+/* ===== 설정: 구글 시트 =====
+   사이트는 아래 시트의 TAB_NAME 탭을 읽습니다.
+   첫째 방식으로 되돌리려면 TAB_NAME 을 "site" 로만 바꾸세요. */
+const SHEET_ID = "1j_BaXAx0Kq6oQCzve9SgTiDbdl_9CDL88KiiSmKffNY";
+const TAB_NAME = "사이트 정보";
+
+/* ===== 시트 로드 실패 시 사용할 내장 백업 데이터 ===== */
+const FALLBACK = [
+  {day:1,time:"09:30",when:"오전",typeL:"출발",title:"수원역 집결·출발",detail:"수원역에서 오전 9시 30분, 16명이 모여 자차로 출발합니다. 제천 의림지까지 약 1시간 45분(140km) 이동합니다.",q:"수원역",addr:"경기 수원시 팔달구 덕영대로 924"},
+  {day:1,time:"11:00",when:"오전",typeL:"관광·나눔",title:"제천 의림지",detail:"삼한시대에 축조된 것으로 전해지는, 우리나라에서 가장 오래된 인공 저수지 중 하나로 국가 명승입니다. 둘레길·노송 군락(제림)·용추폭포가 어우러져 산책하기 좋고 평탄해 임산부도 편안합니다. 3인 소그룹 나눔 진행.",q:"제천 의림지",addr:"충북 제천시 의림지로 33",fee:"입장 무료",leg:"🚗 약 1시간 45분 · 140km"},
+  {day:1,time:"13:00",when:"점심",typeL:"식사",title:"두꺼비식당
