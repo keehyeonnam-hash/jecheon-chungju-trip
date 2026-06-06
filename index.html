@@ -184,14 +184,228 @@
 </div>
 
 <script>
-/* ===== 설정: 구글 시트 =====
-   사이트는 아래 시트의 TAB_NAME 탭을 읽습니다.
-   첫째 방식으로 되돌리려면 TAB_NAME 을 "site" 로만 바꾸세요. */
 const SHEET_ID = "1j_BaXAx0Kq6oQCzve9SgTiDbdl_9CDL88KiiSmKffNY";
 const TAB_NAME = "사이트 정보";
 
-/* ===== 시트 로드 실패 시 사용할 내장 백업 데이터 ===== */
 const FALLBACK = [
   {day:1,time:"09:30",when:"오전",typeL:"출발",title:"수원역 집결·출발",detail:"수원역에서 오전 9시 30분, 16명이 모여 자차로 출발합니다. 제천 의림지까지 약 1시간 45분(140km) 이동합니다.",q:"수원역",addr:"경기 수원시 팔달구 덕영대로 924"},
   {day:1,time:"11:00",when:"오전",typeL:"관광·나눔",title:"제천 의림지",detail:"삼한시대에 축조된 것으로 전해지는, 우리나라에서 가장 오래된 인공 저수지 중 하나로 국가 명승입니다. 둘레길·노송 군락(제림)·용추폭포가 어우러져 산책하기 좋고 평탄해 임산부도 편안합니다. 3인 소그룹 나눔 진행.",q:"제천 의림지",addr:"충북 제천시 의림지로 33",fee:"입장 무료",leg:"🚗 약 1시간 45분 · 140km"},
-  {day:1,time:"13:00",when:"점심",typeL:"식사",title:"두꺼비식당
+  {day:1,time:"13:00",when:"점심",typeL:"식사",title:"두꺼비식당",detail:"제천 현지인·관광객 모두에게 사랑받는 갈비 전문점. 버섯 듬뿍 매콤달콤 양푼갈비가 대표 메뉴, 매운 등갈비·곤드레밥도 인기. 매장 뒤편 주차장.",q:"두꺼비식당 제천",addr:"충북 제천시 의림대로20길 21",tel:"0436478847",leg:"🚗 약 9분 · 4.4km",menu:[{n:"양푼갈비",p:"14,000",sig:true},{n:"매운 등갈비"},{n:"곤드레밥",p:"4,000"}]},
+  {day:1,time:"14:30",when:"오후",typeL:"카페",title:"콘크리트월 카페",detail:"네임리스건축 설계, 2023 한국건축가협회상 수상 카페. 경사지를 따라 쌓은 콘크리트 벽 틈으로 빛과 바람이 드나듭니다. 시그니처는 서리태크림라떼. 수요일 휴무, 10:00~17:30(L.O 17:00).",q:"콘크리트월 제천",addr:"충북 제천시 금성면 청풍호로 1566",leg:"🚗 약 23분 · 17km",menu:[{n:"서리태크림라떼",sig:true},{n:"콜드브루"},{n:"아메리카노"},{n:"바닐라라떼"},{n:"자몽에이드"},{n:"콘에그타르트 · 밤에그타르트"}]},
+  {day:1,time:"16:00",when:"오후",typeL:"관광·나눔",title:"청풍문화재단지",detail:"충주댐 수몰 위기의 청풍 문화유산을 옮겨 복원한 야외 단지. 보물 한벽루 등 누각·옛 가옥이 청풍호를 배경으로 자리합니다. 호수·정자 산책하며 나눔.",q:"청풍문화재단지",addr:"충북 제천시 청풍면 청풍호로 2048",fee:"어른 3,000원",leg:"🚗 약 5분 · 4.6km"},
+  {day:1,time:"18:30",when:"저녁",typeL:"식사",title:"약채락 성현한정식",detail:"청풍호 인근 약선 한정식 전문점. 한약재·제철 식재료로 차린 정갈한 밑반찬과 약선 요리가 특징. 약선 불고기·더덕구이 정식이 대표.",q:"약채락 성현한정식 제천",addr:"충북 제천시 청풍면 청풍호로54길 14-7",leg:"🚗 약 2분 · 1km",menu:[{n:"약선 불고기 정식/전골",p:"20,000",sig:true},{n:"약선 갈비 정식",p:"25,000"},{n:"약선 더덕구이 정식",p:"25,000"},{n:"한우떡갈비",p:"30,000"},{n:"약채락정식 세트 A/B",p:"35,000"}]},
+  {day:1,time:"20:00",when:"저녁",typeL:"숙소",title:"청풍리조트 체크인",detail:"국민연금공단이 운영하는 청풍호반 호텔. 체크인 후 휴식·자유. 1층 코인노래방·게임룸 등 단체 놀거리 이용 가능(야간 운영시간 현장 확인).",q:"청풍리조트 레이크호텔",addr:"충북 제천시 청풍면 청풍호로 1798",tel:"0436407000",leg:"🚗 약 5분 · 3.6km"},
+  {day:2,time:"08:00",when:"오전",typeL:"숙소",title:"여유로운 조식",detail:"둘째 날은 늦게 시작. 숙소에서 여유롭게 조식 후 천천히 준비·체크아웃.",q:"청풍리조트 레이크호텔",addr:"충북 제천시 청풍면 청풍호로 1798"},
+  {day:2,time:"11:00",when:"오전",typeL:"관광·사진",title:"중앙탑 사적공원",detail:"남한강 변 사적공원. 통일신라 석탑 중 가장 큰 국보 '탑평리 7층석탑(중앙탑)'이 있습니다. 잔디밭·야외 조각공원·충주박물관·술박물관이 함께 있어 산책·단체 사진·자유 교제에 좋습니다.",q:"충주 중앙탑사적공원",addr:"충북 충주시 중앙탑면 탑정안길 6",fee:"입장 무료",leg:"🚗 약 50분 · 51km"},
+  {day:2,time:"12:30",when:"점심",typeL:"식사",title:"이씨식당",detail:"충주 칠금동 탄금대 근처 직화 쭈꾸미 맛집(풍자 '또간집' 소개). 매콤한 직화 쭈꾸미에 다른 메뉴를 곁들이는 세트가 인기. 주차 넉넉.",q:"이씨식당 충주",addr:"충북 충주시 능바우길 15",tel:"0438486066",leg:"🚗 약 8분 · 6.4km",menu:[{n:"직화쭈삼겹세트 (2인)",p:"32,000",sig:true},{n:"직화쭈꾸미세트 (2인)",p:"30,000"},{n:"직화 갑오징어세트 (2인)",p:"36,000"},{n:"치즈함박스테이크",p:"12,000"},{n:"로제쉬림프스파게티",p:"11,500"},{n:"돈가스",p:"10,000"}]},
+  {day:2,time:"14:00",when:"오후",typeL:"액티비티",title:"활옥동굴 + 투명카약",detail:"일제강점기부터 운영된 활석 광산을 개조한 동굴. 동양 최대 규모로 알려져 있고 연중 11~15℃로 시원합니다. 지하호수 투명카약이 하이라이트. 월요일 휴무, 매표 17:00·카약 16:00 마감, 현장 발권.",q:"충주 활옥동굴",addr:"충북 충주시 목벌안길 26",tel:"0438488537",leg:"🚗 약 18분 · 13km",menu:[{n:"입장료 (성인)",p:"10,000"},{n:"투명카약 체험",p:"5,000"}]},
+  {day:2,time:"17:00",when:"오후",typeL:"마무리",title:"수원역 도착 · 해산",detail:"충주에서 수원역까지 약 1시간 40분(120km) 이동 후 해산합니다. 1박 2일 수고 많으셨습니다 :)",q:"수원역",addr:"경기 수원시 팔달구 덕영대로 924",leg:"🚗 약 1시간 40분 · 120km"},
+];
+
+const REG = {};
+let cnt = 0;
+
+function typeClass(label){
+  const s = (label||"");
+  if(/식사|맛집|점심|저녁|식당/.test(s)) return "food";
+  if(/카페|커피|디저트/.test(s)) return "cafe";
+  if(/숙소|호텔|체크/.test(s)) return "stay";
+  if(/액티비티|체험|카약/.test(s)) return "act";
+  if(/관광|산책|나눔|사진|야경/.test(s)) return "tour";
+  return "etc";
+}
+function badge(it){
+  return `<span class="b when">${it.when||""}</span><span class="b ${typeClass(it.typeL)}">${it.typeL||""}</span>`;
+}
+function isMobile(){ return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); }
+function openKakao(q){ window.open("https://map.kakao.com/link/search/"+encodeURIComponent(q),"_blank"); return false; }
+function openNaver(q){
+  const e = encodeURIComponent(q);
+  const web = "https://map.naver.com/p/search/"+e;
+  if(!isMobile()){ window.open(web,"_blank"); return false; }
+  let hidden=false; const onHide=()=>{hidden=true;};
+  document.addEventListener("visibilitychange",onHide,{once:true});
+  window.location.href = "nmap://search?query="+e+"&appname=trip.jecheon";
+  setTimeout(()=>{ document.removeEventListener("visibilitychange",onHide); if(!hidden) window.location.href=web; }, 1200);
+  return false;
+}
+function openTmap(q){
+  if(!isMobile()){ alert("T맵 길찾기는 모바일 T맵 앱에서 열립니다. (PC에서는 카카오맵·네이버지도를 이용하세요)"); return false; }
+  window.location.href = "tmap://search?name="+encodeURIComponent(q);
+  return false;
+}
+function mapBtns(q){
+  const a = String(q||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+  return `<div class="maps">
+    <a class="kakao" href="#" onclick="return openKakao('${a}')">카카오맵</a>
+    <a class="naver" href="#" onclick="return openNaver('${a}')">네이버지도</a>
+    <a class="tmap" href="#" onclick="return openTmap('${a}')">T맵</a>
+  </div>`;
+}
+function mapLinks(q){ return mapBtns(q); }
+
+function render(list){
+  return list.map(it=>{
+    const id = "p"+(cnt++);
+    REG[id]=it;
+    const leg = it.leg ? `<div class="leg"><span class="ln"></span>${it.leg}</div>` : "";
+    return `${leg}<div class="item">
+      <div class="t">${it.time||""}</div>
+      <div class="mid">
+        <div class="ttl">${it.title||""}</div>
+        <div class="badges">${badge(it)}</div>
+      </div>
+      <button class="more" onclick="openModal('${id}')">자세히</button>
+    </div>`;
+  }).join("");
+}
+
+function openModal(id){
+  const it = REG[id];
+  let html = `<div class="m-top">
+      <div><div class="m-title">${it.title||""}</div><div class="m-time">🕘 ${it.time||""}</div></div>
+      <button class="x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="m-badges">${badge(it)}</div>
+    <div class="m-desc">${it.detail||""}</div>`;
+  if(it.menu && it.menu.length){
+    html += `<div class="m-sec">메뉴</div><div class="menu">` +
+      it.menu.map(m=>`<div class="mi"><span class="nm">${m.n}${m.sig?'<span class="sig">대표</span>':''}</span><span class="pr">${m.p?m.p+'원':''}</span></div>`).join("") + `</div>`;
+  }
+  if(it.fee){ html += `<div class="m-row"><span class="ic">🎟️</span><span>${it.fee}</span></div>`; }
+  html += `<div class="m-sec">위치</div><div class="m-row"><span class="ic">📍</span><span>${it.addr||""}</span></div>`;
+  if(it.tel){ html += `<div class="m-row"><span class="ic">📞</span><a class="tel" href="tel:${String(it.tel).replace(/[^0-9]/g,'')}">${it.tel}</a></div>`; }
+  html += mapLinks(it.addr || it.q);
+  document.getElementById("modal").innerHTML = html;
+  document.getElementById("overlay").classList.add("show");
+  document.body.classList.add("lock");
+}
+function closeModal(){
+  document.getElementById("overlay").classList.remove("show");
+  document.body.classList.remove("lock");
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+function parseMenu(s){
+  if(!s) return null;
+  const parts = String(s).split(/[\n;]+/).map(x=>x.trim()).filter(Boolean);
+  if(!parts.length) return null;
+  return parts.map(tok=>{
+    let sig=false;
+    if(tok.endsWith("*")){ sig=true; tok=tok.slice(0,-1).trim(); }
+    const eq = tok.indexOf("=");
+    if(eq>=0){
+      const n=tok.slice(0,eq).trim();
+      let p=tok.slice(eq+1).trim().replace(/원\s*$/,"");
+      return sig?{n,p,sig}:{n,p};
+    }
+    return sig?{n:tok,sig}:{n:tok};
+  });
+}
+
+function applyData(rows, fromSheet){
+  cnt=0;
+  for(const k in REG) delete REG[k];
+  const d1 = rows.filter(r=>String(r.day)==="1");
+  const d2 = rows.filter(r=>String(r.day)==="2");
+  document.getElementById("day1").innerHTML = render(d1);
+  document.getElementById("day2").innerHTML = render(d2);
+  document.getElementById("lb1").textContent = `6/8 월 · ${d1.length}곳`;
+  document.getElementById("lb2").textContent = `6/9 화 · ${d2.length}곳`;
+  const b = document.getElementById("banner");
+  if(fromSheet){ b.className="banner hide"; }
+  else { b.className="banner warn"; b.textContent="시트를 불러오지 못해 저장된 내용을 표시 중입니다. (시트 공개 설정·인터넷 확인 후 새로고침)"; }
+}
+
+function parseTable(json){
+  const cols = (json.table.cols||[]).map(c=>(c.label||"").trim());
+  const idx = {};
+  cols.forEach((label,i)=>{
+    if(/일차|day/i.test(label)) idx.day=i;
+    else if(/시간대/.test(label)) idx.when=i;
+    else if(/시간|time/i.test(label)) idx.time=i;
+    else if(/유형|구분|type/i.test(label)) idx.typeL=i;
+    else if(/장소|이름|name|title/i.test(label)) idx.title=i;
+    else if(/설명|detail|소개/i.test(label)) idx.detail=i;
+    else if(/주소|addr/i.test(label)) idx.addr=i;
+    else if(/전화|연락|tel|phone/i.test(label)) idx.tel=i;
+    else if(/입장|요금|fee/i.test(label)) idx.fee=i;
+    else if(/메뉴|menu/i.test(label)) idx.menu=i;
+    else if(/이동|leg|교통/.test(label)) idx.leg=i;
+    else if(/검색|map|지도/i.test(label)) idx.q=i;
+  });
+  const val = (cells,i)=>{ if(i==null||!cells[i]) return ""; const c=cells[i]; return (c.f!=null?c.f:(c.v!=null?c.v:"")); };
+  return (json.table.rows||[]).map(r=>{
+    const c=r.c||[];
+    const o={
+      day:String(val(c,idx.day)).trim(),
+      time:String(val(c,idx.time)).trim(),
+      when:String(val(c,idx.when)).trim(),
+      typeL:String(val(c,idx.typeL)).trim(),
+      title:String(val(c,idx.title)).trim(),
+      detail:String(val(c,idx.detail)).trim(),
+      addr:String(val(c,idx.addr)).trim(),
+      tel:String(val(c,idx.tel)).trim(),
+      fee:String(val(c,idx.fee)).trim(),
+      leg:String(val(c,idx.leg)).trim(),
+      q:String(val(c,idx.q)).trim()
+    };
+    if(!o.q) o.q=o.title;
+    o.menu=parseMenu(val(c,idx.menu));
+    return o;
+  }).filter(o=>o.title);
+}
+
+function loadSheet(){
+  const cb = "__sheetCb_"+Date.now();
+  let done = false;
+  const finish = (rows, ok)=>{ if(done) return; done=true; try{ delete window[cb]; }catch(e){} applyData(rows, ok); };
+  window[cb] = function(json){
+    try{
+      const rows = parseTable(json);
+      if(!rows.length) throw new Error("no rows");
+      finish(rows, true);
+    }catch(e){ console.warn("parse failed:", e); finish(FALLBACK, false); }
+  };
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cb}&headers=1&sheet=${encodeURIComponent(TAB_NAME)}`;
+  const s = document.createElement("script");
+  s.src = url;
+  s.onerror = ()=>finish(FALLBACK, false);
+  document.head.appendChild(s);
+  setTimeout(()=>finish(FALLBACK, false), 10000);
+}
+
+function loadVehicles(){
+  const cb = "__vehCb_"+Date.now();
+  let done = false;
+  const fail = ()=>{ if(done) return; done=true; document.getElementById("vehBody").innerHTML = '<div class="row">차량 배치를 불러오지 못했습니다. (시트 \'명단 및 방 배치\' 탭의 차량 표 위치를 확인하세요)</div>'; };
+  window[cb] = function(json){
+    if(done) return; done=true; try{ delete window[cb]; }catch(e){}
+    try{
+      const rows = (json.table.rows||[]).map(r=>(r.c||[]).map(c=>c?(c.f!=null?c.f:(c.v!=null?c.v:"")):""));
+      const cars = rows.filter(r=>r[0] && String(r[0]).trim());
+      if(!cars.length) throw new Error("no cars");
+      document.getElementById("vehBody").innerHTML = cars.map(r=>
+        `<div class="veh"><div class="vh">${r[0]} <span class="drv">· 운전 ${r[2]||"-"}</span></div><div class="vp">${r[1]||""}</div></div>`).join("");
+      document.getElementById("vehCount").textContent = cars.length+"대";
+    }catch(e){ document.getElementById("vehBody").innerHTML = '<div class="row">차량 배치 정보가 없습니다.</div>'; }
+  };
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cb}&headers=0&range=B27:D40&sheet=${encodeURIComponent("명단 및 방 배치")}`;
+  const s = document.createElement("script");
+  s.src = url; s.onerror = fail;
+  document.head.appendChild(s);
+  setTimeout(fail, 10000);
+}
+
+function showDay(n){
+  document.getElementById("day1").classList.toggle("hidden", n!==1);
+  document.getElementById("day2").classList.toggle("hidden", n!==2);
+  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("on", i===n-1));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+loadSheet();
+loadVehicles();
+</script>
+</body>
+</html>
