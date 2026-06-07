@@ -97,6 +97,8 @@
   .m-time{font-size:12.5px;color:var(--sub);margin-top:3px;}
   .x{flex:none;border:none;background:#f0f2f0;color:#5a665d;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;line-height:1;}
   .m-badges{margin:12px 0 0;}
+  .m-imgs{margin:14px 0 0;display:flex;flex-direction:column;gap:8px;}
+  .m-imgs img{width:100%;border-radius:12px;display:block;background:#eef1ef;}
   .m-desc{font-size:14px;color:#404a44;line-height:1.7;margin:14px 0;white-space:pre-wrap;}
   .m-sec{font-size:13px;font-weight:700;color:var(--teal-d);margin:18px 0 8px;}
   .menu{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
@@ -266,8 +268,9 @@ function openModal(id){
       <div><div class="m-title">${it.title||""}</div><div class="m-time">🕘 ${it.time||""}</div></div>
       <button class="x" onclick="closeModal()">✕</button>
     </div>
-    <div class="m-badges">${badge(it)}</div>
-    <div class="m-desc">${it.detail||""}</div>`;
+    <div class="m-badges">${badge(it)}</div>`;
+  if(it.imgs && it.imgs.length){ html += `<div class="m-imgs">`+it.imgs.map(u=>`<img src="${u}" alt="" loading="lazy">`).join("")+`</div>`; }
+  html += `<div class="m-desc">${it.detail||""}</div>`;
   if(it.menu && it.menu.length){
     html += `<div class="m-sec">메뉴</div><div class="menu">` +
       it.menu.map(m=>`<div class="mi"><span class="nm">${m.n}${m.sig?'<span class="sig">대표</span>':''}</span><span class="pr">${m.p?m.p+'원':''}</span></div>`).join("") + `</div>`;
@@ -331,6 +334,7 @@ function parseTable(json){
     else if(/전화|연락|tel|phone/i.test(label)) idx.tel=i;
     else if(/입장|요금|fee/i.test(label)) idx.fee=i;
     else if(/메뉴|menu/i.test(label)) idx.menu=i;
+    else if(/사진|이미지|photo|image/i.test(label)) idx.img=i;
     else if(/이동|leg|교통/.test(label)) idx.leg=i;
     else if(/검색|map|지도/i.test(label)) idx.q=i;
   });
@@ -352,8 +356,21 @@ function parseTable(json){
     };
     if(!o.q) o.q=o.title;
     o.menu=parseMenu(val(c,idx.menu));
+    o.imgs=parseImgs(val(c,idx.img));
     return o;
   }).filter(o=>o.title);
+}
+
+/* ===== 사진 셀 파싱: 여러 URL은 줄바꿈 또는 ; 로 구분. 구글 드라이브 링크는 자동 변환 ===== */
+function driveImg(u){
+  u=String(u||"").trim(); if(!u) return "";
+  let m=u.match(/\/file\/d\/([-\w]+)/) || u.match(/[?&]id=([-\w]+)/) || u.match(/\/d\/([-\w]+)/);
+  if(m) return "https://drive.google.com/thumbnail?id="+m[1]+"&sz=w1200";
+  return u;
+}
+function parseImgs(s){
+  if(!s) return [];
+  return String(s).split(/[\n;]+/).map(x=>x.trim()).filter(Boolean).map(driveImg);
 }
 
 function loadSheet(){
